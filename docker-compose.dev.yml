@@ -1,5 +1,12 @@
 version: "3.8"
 
+x-django-env: &django-env
+  DJANGO_DATABASE_NAME: postgres
+  DJANGO_DATABASE_USER: postgres
+  DJANGO_DATABASE_PASSWORD: postgres
+  DJANGO_DATABASE_HOST: db
+  DJANGO_DATABASE_PORT: 5432
+
 x-db-env: &db-env
   POSTGRES_DB: postgres
   POSTGRES_USER: postgres
@@ -11,8 +18,10 @@ services:
     command: yarn start
     volumes:
       - "./frontend/src:/app/src"
+      - "./frontend/package.json:/app/package.json"
+      - "./frontend/yarn.lock:/app/yarn.lock"
     ports:
-      - "127.0.0.1:3000:3000"
+      - 3000:3000
 
   db:
     image: postgres
@@ -22,12 +31,10 @@ services:
 
   web:
     build: backend
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - "./backend:/app"
+    environment: *django-env
     ports:
-      - "127.0.0.1:8000:8000"
+      - 8000:8000
     depends_on:
       - db
-    network_mode: host
-    restart: on-failure
