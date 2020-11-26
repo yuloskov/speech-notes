@@ -1,7 +1,8 @@
 // @ts-nocheck
-import { Form, Input, Button } from 'antd';
-import { useHistory } from 'react-router-dom';
+import {Form, Input, Button} from 'antd';
+import {useHistory} from 'react-router-dom';
 import ApiClient from '../ApiClient';
+import React from 'react';
 
 function RegisterForm({setAuthed}) {
   const history = useHistory();
@@ -15,7 +16,8 @@ function RegisterForm({setAuthed}) {
     console.log(resp)
     setAuthed(true)
     history.push('/secret')
-  };
+  }
+
   const onFinishFailed = errorInfo => {
     console.log('Failed:', errorInfo);
   };
@@ -23,24 +25,24 @@ function RegisterForm({setAuthed}) {
   return (
     <Form
       name="basic"
-      initialValues={{ remember: true }}
+      initialValues={{remember: true}}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
     >
       <Form.Item
         label="Username"
         name="username"
-        rules={[{ required: true, message: 'Please input your username!' }]}
+        rules={[{required: true, message: 'Please input your username!'}]}
       >
-        <Input />
+        <Input/>
       </Form.Item>
 
       <Form.Item
         label="Password"
         name="password"
-        rules={[{ required: true, message: 'Please input your password!' }]}
+        rules={[{required: true, message: 'Please input your password!'}]}
       >
-        <Input.Password />
+        <Input.Password/>
       </Form.Item>
 
       <Form.Item>
@@ -53,6 +55,6 @@ function RegisterForm({setAuthed}) {
       </Form.Item>
     </Form>
   );
-};
+}
 
 export default RegisterForm;

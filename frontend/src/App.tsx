@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import LoginForm from './components/LoginForm';
 import PrivateRoute from './components/PrivateRoute';
 import {
@@ -7,6 +7,7 @@ import {
   Route,
 } from 'react-router-dom';
 import RegisterForm from './components/RegisterForm';
+import Dashboard from './components/Dashboard';
 
 
 function App() {
@@ -14,17 +15,21 @@ function App() {
 
   console.log(authed)
   return (
-   <Router>
+    <Router>
       <Switch>
-        <Route path="/login">
-          <LoginForm setAuthed={setAuthed} />
+        <Route path='/login'>
+          <LoginForm setAuthed={setAuthed}/>
         </Route>
-        <Route path="/register">
-          <RegisterForm setAuthed={setAuthed} />
+        <Route path='/register'>
+          <RegisterForm setAuthed={setAuthed}/>
         </Route>
         <PrivateRoute path='/secret' authed={authed}>
           Private data
         </PrivateRoute>
+        {/*TODO private route does not work*/}
+        <Route path='/notes' authed={authed}>
+          <Dashboard/>
+        </Route>
       </Switch>
     </Router>
   );

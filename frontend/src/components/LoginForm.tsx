@@ -16,7 +16,8 @@ function LoginForm({setAuthed}) {
     // TODO store token in local storage
     console.log(resp)
     history.push('/secret')
-  };
+  }
+
   const onFinishFailed = errorInfo => {
     console.log('Failed:', errorInfo);
   };
@@ -54,6 +55,6 @@ function LoginForm({setAuthed}) {
       </Form.Item>
     </Form>
   );
-};
+}
 
 export default LoginForm;
