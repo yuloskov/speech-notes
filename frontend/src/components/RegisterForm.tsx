@@ -28,6 +28,7 @@ function RegisterForm({setAuthed}) {
       initialValues={{remember: true}}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
+      style={{ maxWidth: '500px' }}
     >
       <Form.Item
         label="Username"
@@ -45,8 +46,8 @@ function RegisterForm({setAuthed}) {
         <Input.Password/>
       </Form.Item>
 
-      <Form.Item>
-        <Button type="primary" htmlType="submit">
+      <Form.Item wrapperCol={{ span: 16 }}>
+        <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
           Register
         </Button>
         <Button onClick={() => history.push('/login')}>

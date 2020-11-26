@@ -28,6 +28,7 @@ function LoginForm({setAuthed}) {
       initialValues={{ remember: true }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
+      style={{ maxWidth: '500px' }}
     >
       <Form.Item
         label="Username"
@@ -46,7 +47,7 @@ function LoginForm({setAuthed}) {
       </Form.Item>
 
       <Form.Item>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>
           Login
         </Button>
         <Button onClick={() => history.push('/register')}>
