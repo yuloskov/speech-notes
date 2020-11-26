@@ -1,13 +1,23 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import {Button, Card, Col, Row} from 'antd';
 import Note from './Note';
 import {PlusOutlined} from '@ant-design/icons';
 import AddNote from './AddNote';
+import ApiClient, { setToken } from '../ApiClient';
 
 
 export default function Dashboard() {
   const [visible, setVisible] = useState(false);
+  const [notes, setNotes] = useState([]);
 
+  async function updateNotes() {
+    const resp = await ApiClient.get('notes/')
+    setNotes(resp.data)
+    console.log(notes)
+  }
+  useEffect(() => {
+    updateNotes()
+  }, [])
   return (
     <div>
       <AddNote show={visible} close={() => setVisible(false)}/>

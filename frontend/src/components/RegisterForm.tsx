@@ -1,24 +1,20 @@
-// @ts-nocheck
-import {Form, Input, Button} from 'antd';
-import {useHistory} from 'react-router-dom';
-import ApiClient from '../ApiClient';
 import React from 'react';
+import { Form, Input, Button } from 'antd';
+import ApiClient, { setToken } from '../ApiClient';
+import history from '../browerHistory';
 
-function RegisterForm({setAuthed}) {
-  const history = useHistory();
 
-  async function onFinish(values) {
-    console.log('Success:', values);
+function RegisterForm({setAuthed}: any) {
+  async function onFinish(values: {username: string, password: String}) {
     const resp = await ApiClient.post('auth/register/', {
       username: values.username,
       password: values.password,
     });
-    console.log(resp)
-    setAuthed(true)
-    history.push('/secret')
-  }
-
-  const onFinishFailed = errorInfo => {
+    setToken(resp.data.token);
+    setAuthed(true);
+    history.push('/notes');
+  };
+  function onFinishFailed(errorInfo: any) {
     console.log('Failed:', errorInfo);
   };
 

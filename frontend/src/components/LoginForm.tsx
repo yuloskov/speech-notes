@@ -1,24 +1,21 @@
-// @ts-nocheck
+import React from 'react';
 import { Form, Input, Button } from 'antd';
-import { useHistory } from 'react-router-dom';
-import ApiClient from '../ApiClient';
+import ApiClient, { setToken } from '../ApiClient';
+import history from '../browerHistory';
 
-function LoginForm({setAuthed}) {
-  const history = useHistory();
 
-  async function onFinish(values) {
-    console.log('Success:', values);
-    setAuthed(true)
+function LoginForm({setAuthed}: any) {
+  async function onFinish(values: {username: string, password: String}) {
     const resp = await ApiClient.post('auth/login/', {
       username: values.username,
       password: values.password,
     });
-    // TODO store token in local storage
-    console.log(resp)
-    history.push('/secret')
-  }
-
-  const onFinishFailed = errorInfo => {
+    setToken(resp.data.token);
+    setAuthed(true);
+    history.push('/notes');
+    console.log(history)
+  };
+  function onFinishFailed(errorInfo: any) {
     console.log('Failed:', errorInfo);
   };
 

@@ -37,10 +37,10 @@ export default function AddNote(props: any) {
             </Col>
             <Col flex={24}>
               <Button key='back' onClick={handleCancel}>
-                Return
+                Cancel
               </Button>
               <Button key='submit' type='primary' onClick={handleOk}>
-                Submit
+                Add note
               </Button>
             </Col>
           </Row>
