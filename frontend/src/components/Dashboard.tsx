@@ -4,15 +4,16 @@ import Note from './Note';
 import {PlusOutlined} from '@ant-design/icons';
 import NoteDialog from './NoteDialog';
 import ApiClient from '../ApiClient';
+import {NoteT, NotePropsT} from '../types';
 
-function DashboardItem({note, editNode}: any) {
+function DashboardItem(props: NotePropsT) {
   return (
-    <Col span={6}><Note note={note} editNode={editNode}/></Col>
+    <Col span={6}><Note {...props}/></Col>
   );
 }
 
-function DashboardRow({notes, editNode}: any) {
-  const items = notes.map((note: any) =>
+function DashboardRow({notes, editNode}: {notes: NoteT[], editNode: (id: number) => void}) {
+  const items = notes.map(note =>
     <DashboardItem note={note} editNode={editNode}/>
   );
   return (
@@ -24,33 +25,26 @@ function DashboardRow({notes, editNode}: any) {
 
 export default function Dashboard() {
   const [visible, setVisible] = useState(false);
-  const [notes, setNotes] = useState([]);
-  const [curId, setCurId] = useState('');
+  const [notes, setNotes] = useState([] as NoteT[]);
+  const [curId, setCurId] = useState(-1);
 
   async function updateNotes() {
     const resp = await ApiClient.get('notes/');
     setNotes(resp.data);
   }
 
-  function editNode(id: string) {
+  function editNode(id: number) {
     setCurId(id);
     setVisible(true);
   }
 
   function getRows() {
-    const notesInRows = [];
+    const notesInRows: NoteT[][] = [];
 
-    let row: any[] = [];
-
-    let i = 0;
-    for (let note of notes) {
-      i += 1;
-      row.push(note);
-
-      if (i % 4 === 0 || (i === notes.length && row.length > 0)) {
-        notesInRows.push(row);
-        row = [];
-      }
+    let index = 0;
+    while (index < notes.length) {
+      notesInRows.push(notes.slice(index, index + 4));
+      index += 4;
     }
 
     return notesInRows.map((rowNotes) =>
@@ -65,7 +59,7 @@ export default function Dashboard() {
   const rows = getRows();
 
   return (
-    <div>
+    <>
       <NoteDialog
         show={visible}
         close={() => setVisible(false)}
@@ -81,6 +75,6 @@ export default function Dashboard() {
         <p/>
         {rows}
       </Card>
-    </div>
+    </>
   );
 }

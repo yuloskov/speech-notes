@@ -3,51 +3,46 @@ import {Input} from 'antd';
 import React, {useState} from 'react';
 import {AudioOutlined} from '@ant-design/icons';
 import ApiClient from '../ApiClient';
+import {NoteDialogPropsT} from '../types';
 
 const {TextArea} = Input;
 const editOp = 'Edit Note';
 const addOp = 'Add Note';
 
-export default function NoteDialog(props: any) {
-  const [text, setText] = useState(props.text);
-  const [title, setTitle] = useState(props.title);
+
+export default function NoteDialog({id, close, show, update}: NoteDialogPropsT) {
+  const [text, setText] = useState('');
+  const [title, setTitle] = useState('');
   const [operation, setOperation] = useState(addOp);
 
   async function getCurNote() {
-    if (props.id === '') {
-      return;
-    }
-    const resp = await ApiClient.get(`notes/${props.id}/`);
+    if (id === -1) return;
+
+    const resp = await ApiClient.get(`notes/${id}/`);
     setText(resp.data.text);
     setTitle(resp.data.title);
   }
 
-  async function submit(e: any) {
+  async function submit() {
     if (title === '' && text === '') {
-      props.close();
+      close();
       return;
     }
 
     if (operation === addOp) {
-      await ApiClient.post('notes/', {
-        title: title,
-        text: text,
-      });
-    } else if (props.id !== '') {
-      await ApiClient.patch(`notes/${props.id}/`, {
-        title: title,
-        text: text,
-      });
+      await ApiClient.post('notes/', {title,text});
+    } else if (id !== -1) {
+      await ApiClient.patch(`notes/${id}/`, {title, text});
     }
 
     setOperation(addOp);
-    props.update();
-    props.close();
+    update();
+    close();
   }
 
-  function cancel(e: any) {
+  function cancel() {
     setOperation(addOp);
-    props.close();
+    close();
   }
 
   function recordVoice() {
@@ -55,7 +50,7 @@ export default function NoteDialog(props: any) {
     console.log('recording...');
   }
 
-  if (props.show && operation === addOp && props.id !== '') {
+  if (show && operation === addOp && id !== -1) {
     setOperation(editOp);
     getCurNote();
   }
@@ -63,7 +58,7 @@ export default function NoteDialog(props: any) {
   return (
     <Modal
       title={operation}
-      visible={props.show}
+      visible={show}
       onOk={submit}
       onCancel={cancel}
       footer={[

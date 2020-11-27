@@ -2,13 +2,14 @@ import React from 'react';
 import {Form, Input, Button} from 'antd';
 import ApiClient, {setToken} from '../ApiClient';
 import history from '../browerHistory';
+import {UserT} from '../types';
 
 
 function RegisterForm({setAuthed}: any) {
-  async function onFinish(values: { username: string, password: String }) {
+  async function onFinish({username, password}: UserT) {
     const resp = await ApiClient.post('auth/register/', {
-      username: values.username,
-      password: values.password,
+      username,
+      password,
     });
     setToken(resp.data.token);
     setAuthed(true);

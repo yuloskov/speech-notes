@@ -2,18 +2,18 @@ import React from 'react';
 import { Form, Input, Button } from 'antd';
 import ApiClient, { setToken } from '../ApiClient';
 import history from '../browerHistory';
+import {UserT} from '../types';
 
 
 function LoginForm({setAuthed}: any) {
-  async function onFinish(values: {username: string, password: String}) {
+  async function onFinish({username, password}: UserT) {
     const resp = await ApiClient.post('auth/login/', {
-      username: values.username,
-      password: values.password,
+      username,
+      password,
     });
     setToken(resp.data.token);
     setAuthed(true);
     history.push('/notes');
-    console.log(history)
   };
   function onFinishFailed(errorInfo: any) {
     console.log('Failed:', errorInfo);
