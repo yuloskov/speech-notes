@@ -1,18 +1,31 @@
 import {Button, Col, Modal, Row} from 'antd';
 import {Input} from 'antd';
-import React from 'react';
+import React, {useState} from 'react';
 import {AudioOutlined} from '@ant-design/icons';
+import ApiClient from '../ApiClient';
 
 const {TextArea} = Input;
 
 export default function AddNote(props: any) {
-  function handleOk(e: any) {
-    console.log(e);
+  const [text, setText] = useState('');
+  const [title, setTitle] = useState('');
+
+  async function handleOk(e: any) {
+    if (title === '' && text === '') {
+      props.close();
+      return
+    }
+
+    await ApiClient.post('notes/', {
+      title: title,
+      text: text,
+    });
+
+    props.update();
     props.close();
   }
 
   function handleCancel(e: any) {
-    console.log(e);
     props.close()
   }
 
@@ -28,26 +41,36 @@ export default function AddNote(props: any) {
       onOk={handleOk}
       onCancel={handleCancel}
       footer={[
-        <>
-          <Row>
-            <Col flex={0}>
-              <Button key='voice' onClick={recordVoice} shape='circle'>
-                <AudioOutlined />
-              </Button>
-            </Col>
-            <Col flex={24}>
-              <Button key='back' onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button key='submit' type='primary' onClick={handleOk}>
-                Add note
-              </Button>
-            </Col>
-          </Row>
-        </>
+        <Row>
+          <Col flex={0}>
+            <Button key='voice' onClick={recordVoice} shape='circle'>
+              <AudioOutlined/>
+            </Button>
+          </Col>
+          <Col flex={24}>
+            <Button key='back' onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button key='submit' type='primary' onClick={handleOk}>
+              Add note
+            </Button>
+          </Col>
+        </Row>
       ]}
     >
-      <TextArea rows={4}/>
+      <TextArea
+        key='title'
+        rows={1}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder='Enter title here'
+      />
+      <p/>
+      <TextArea
+        key='text'
+        rows={4}
+        onChange={(e) => setText(e.target.value)}
+        placeholder='Enter your note here'
+      />
     </Modal>
   );
 }
