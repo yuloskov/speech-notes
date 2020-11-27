@@ -18,8 +18,7 @@ ApiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response.status === 401 || error.response.status === 404) {
-      removeToken();
-      history.push('/login');
+      logout();
     }
 
     return Promise.reject(error);
@@ -34,6 +33,11 @@ function removeToken() {
   window.localStorage.removeItem('SPEECH_NOTES_TOKEN');
 }
 
+function logout() {
+  removeToken();
+  history.push('/login');
+}
+
 function getToken() {
   return window.localStorage.getItem('SPEECH_NOTES_TOKEN');
 }
@@ -42,4 +46,4 @@ function hasToken() {
   return getToken() !== null;
 }
 
-export {ApiClient as default, setToken, hasToken};
+export {ApiClient as default, setToken, hasToken, logout};

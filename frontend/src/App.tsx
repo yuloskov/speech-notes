@@ -9,9 +9,10 @@ import {
 } from 'react-router-dom';
 import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
-import { Layout } from 'antd'
-import { hasToken } from './ApiClient';
+import { Button, Layout } from 'antd'
+import { hasToken, logout } from './ApiClient'
 import history from './browerHistory';
+import { PoweroffOutlined } from '@ant-design/icons'
 
 
 function App() {
@@ -20,7 +21,19 @@ function App() {
   return (
     <Router history={history}>
       <Layout className="layout" style={ { minHeight: '100vh' } }>
-        <Layout.Header/>
+        <Layout.Header>
+          {authed && <div style={{float: 'right'}}><Button
+            type="primary"
+            icon={<PoweroffOutlined />}
+            loading={false}
+            onClick={() => {
+              logout()
+              setAuthed(false)
+            }}
+          >
+            Log out
+          </Button></div>}
+        </Layout.Header>
         <Layout.Content style={ { padding: '50px' } }>
           <Switch>
 
