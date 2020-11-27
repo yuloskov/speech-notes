@@ -2,66 +2,76 @@ import React, {useState, useEffect} from 'react';
 import {Button, Card, Col, Row} from 'antd';
 import Note from './Note';
 import {PlusOutlined} from '@ant-design/icons';
-import AddNote from './AddNote';
+import NoteDialog from './NoteDialog';
 import ApiClient from '../ApiClient';
 
-function DashboardItem({note}: any) {
+function DashboardItem({note, editNode}: any) {
   return (
-    <Col span={6}><Note  title={note.title} text={note.text}/></Col>
-  )
+    <Col span={6}><Note note={note} editNode={editNode}/></Col>
+  );
 }
 
-function DashboardRow({notes}: any) {
+function DashboardRow({notes, editNode}: any) {
   const items = notes.map((note: any) =>
-    <DashboardItem note={note}/>
+    <DashboardItem note={note} editNode={editNode}/>
   );
   return (
     <Row gutter={[16, 16]}>
       {items}
     </Row>
-  )
+  );
 }
 
 export default function Dashboard() {
   const [visible, setVisible] = useState(false);
   const [notes, setNotes] = useState([]);
+  const [curId, setCurId] = useState('');
 
   async function updateNotes() {
-    const resp = await ApiClient.get('notes/')
-    setNotes(resp.data)
+    const resp = await ApiClient.get('notes/');
+    setNotes(resp.data);
+  }
+
+  function editNode(id: string) {
+    setCurId(id);
+    setVisible(true);
   }
 
   function getRows() {
-    const notesInRows = []
+    const notesInRows = [];
 
-    let row: any[] = []
+    let row: any[] = [];
 
     let i = 0;
     for (let note of notes) {
       i += 1;
-      row.push(note)
+      row.push(note);
 
       if (i % 4 === 0 || (i === notes.length && row.length > 0)) {
-        notesInRows.push(row)
+        notesInRows.push(row);
         row = [];
       }
     }
 
-    const rows = notesInRows.map((rowNotes) =>
-      <DashboardRow notes={rowNotes}/>
+    return notesInRows.map((rowNotes) =>
+      <DashboardRow notes={rowNotes} editNode={editNode}/>
     );
-    return rows;
   }
 
   useEffect(() => {
-    updateNotes()
-  }, [])
+    updateNotes();
+  }, []);
 
   const rows = getRows();
 
   return (
     <div>
-      <AddNote show={visible} close={() => setVisible(false)} update={updateNotes}/>
+      <NoteDialog
+        show={visible}
+        close={() => setVisible(false)}
+        update={updateNotes}
+        id={curId}
+      />
       <Card bordered={false}>
         <Row justify='end'>
           <Button type='primary' shape='circle' onClick={() => setVisible(true)}>
