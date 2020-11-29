@@ -8,7 +8,7 @@ export interface NoteT {
 
 export interface NotePropsT {
 	note: NoteT,
-	editNode: (id: number) => void,
+	onClick: (id: number) => void,
 }
 
 export interface UserT {
@@ -17,7 +17,6 @@ export interface UserT {
 }
 
 export interface NoteDialogPropsT {
-	show: boolean,
 	close: () => void,
 	update: () => Promise<void>,
 	id: number,

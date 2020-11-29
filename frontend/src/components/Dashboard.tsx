@@ -14,7 +14,7 @@ function DashboardItem(props: NotePropsT) {
 
 function DashboardRow({notes, editNode}: {notes: NoteT[], editNode: (id: number) => void}) {
   const items = notes.map(note =>
-    <DashboardItem note={note} key={note.id} editNode={editNode}/>
+    <DashboardItem note={note} key={note.id} onClick={editNode}/>
   );
   return (
     <Row gutter={[16, 16]}>
@@ -24,18 +24,15 @@ function DashboardRow({notes, editNode}: {notes: NoteT[], editNode: (id: number)
 }
 
 export default function Dashboard() {
-  const [visible, setVisible] = useState(false);
+  const [{ visible, id: curId }, setCurNote] = useState({
+    visible: false,
+    id: -1
+  });
   const [notes, setNotes] = useState([] as NoteT[]);
-  const [curId, setCurId] = useState(-1);
 
   async function updateNotes() {
     const resp = await ApiClient.get('notes/');
     setNotes(resp.data);
-  }
-
-  function editNode(id: number) {
-    setCurId(id);
-    setVisible(true);
   }
 
   function getRows() {
@@ -47,8 +44,9 @@ export default function Dashboard() {
       index += 4;
     }
 
+    const editNote = (id: number) => setCurNote({ visible: true, id });
     return notesInRows.map((rowNotes) =>
-      <DashboardRow notes={rowNotes} key={rowNotes[0].id} editNode={editNode}/>
+      <DashboardRow notes={rowNotes} key={rowNotes[0].id} editNode={editNote}/>
     );
   }
 
@@ -56,24 +54,21 @@ export default function Dashboard() {
     updateNotes();
   }, []);
 
-  const rows = getRows();
-
   return (
     <>
-      <NoteDialog
-        show={visible}
-        close={() => setVisible(false)}
+      {visible && <NoteDialog
+        close={() => setCurNote({ visible: false, id: -1 })}
         update={updateNotes}
         id={curId}
-      />
+      />}
       <Card bordered={false}>
         <Row justify='end'>
-          <Button type='primary' shape='circle' onClick={() => setVisible(true)}>
+          <Button type='primary' shape='circle' onClick={() => setCurNote({ visible: true, id: -1 })}>
             <PlusOutlined/>
           </Button>
         </Row>
         <p/>
-        {rows}
+        {getRows()}
       </Card>
     </>
   );

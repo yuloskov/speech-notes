@@ -1,8 +1,9 @@
 import {Button, Col, Modal, Row} from 'antd';
 import {Input} from 'antd';
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react'
 import {AudioOutlined} from '@ant-design/icons';
 import ApiClient from '../ApiClient';
+import makeRecorder from '../AudioProcessor';
 import {NoteDialogPropsT} from '../types';
 
 const {TextArea} = Input;
@@ -10,18 +11,24 @@ const editOp = 'Edit Note';
 const addOp = 'Add Note';
 
 
-export default function NoteDialog({id, close, show, update}: NoteDialogPropsT) {
+export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
   const [text, setText] = useState('');
   const [title, setTitle] = useState('');
-  const [operation, setOperation] = useState(addOp);
+  const operation = id > -1 ? editOp : addOp;
+  const [recordInfo, setRecordInfo] = useState<{ time: number, audio: Blob | null }>({
+    time: 0,
+    audio: null
+  });
+  const [recording, setRecording] = useState(false);
 
-  async function getCurNote() {
+  useEffect(() => {
     if (id === -1) return;
 
-    const resp = await ApiClient.get(`notes/${id}/`);
-    setText(resp.data.text);
-    setTitle(resp.data.title);
-  }
+    ApiClient.get(`notes/${id}/`).then(resp => {
+      setText(resp.data.text);
+      setTitle(resp.data.title);
+    });
+  }, []);
 
   async function submit() {
     if (title === '' && text === '') {
@@ -29,47 +36,50 @@ export default function NoteDialog({id, close, show, update}: NoteDialogPropsT) 
       return;
     }
 
-    if (operation === addOp) {
+    if (id === -1) {
       await ApiClient.post('notes/', {title,text});
-    } else if (id !== -1) {
+    } else {
       await ApiClient.patch(`notes/${id}/`, {title, text});
     }
 
-    setOperation(addOp);
     update();
     close();
   }
 
-  function cancel() {
-    setOperation(addOp);
-    close();
-  }
+  useEffect(() => {
+    if (!recording) return;
 
-  function recordVoice() {
-    console.log(operation);
-    console.log('recording...');
-  }
+    const recorder = makeRecorder();
+    const intervalId = setInterval(() => {
+      setRecordInfo(({ time, ...rest }) => ({ time: time + 1, ...rest }))
+    }, 1000)
+    recorder.start((file: Blob) => setRecordInfo({
+      time: 0,
+      audio: file
+    }))
 
-  if (show && operation === addOp && id !== -1) {
-    setOperation(editOp);
-    getCurNote();
-  }
+    return () => {
+      clearInterval(intervalId)
+      recorder.stop()
+    };
+  }, [recording]);
 
   return (
     <Modal
       title={operation}
-      visible={show}
+      visible
       onOk={submit}
-      onCancel={cancel}
+      onCancel={close}
       footer={
         <Row>
           <Col flex={0}>
-            <Button key='voice' onClick={recordVoice} shape='circle'>
+            {recordInfo.time}
+            {id === -1 && <Button key='voice' onClick={() => setRecording(!recording)} shape='circle'>
               <AudioOutlined/>
-            </Button>
+            </Button>}
           </Col>
           <Col flex={24}>
-            <Button key='back' onClick={cancel}>
+            <Button key='back' onClick={close}>
               Cancel
             </Button>
             <Button key='submit' type='primary' onClick={submit}>
