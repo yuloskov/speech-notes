@@ -11,7 +11,7 @@ import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
 import {Button, Layout} from 'antd';
 import {hasToken, logout} from './ApiClient';
-import history from './browerHistory';
+import history from './browserHistory';
 
 
 function App() {

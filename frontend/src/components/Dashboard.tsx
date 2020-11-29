@@ -14,7 +14,7 @@ function DashboardItem(props: NotePropsT) {
 
 function DashboardRow({notes, editNode}: {notes: NoteT[], editNode: (id: number) => void}) {
   const items = notes.map(note =>
-    <DashboardItem note={note} editNode={editNode}/>
+    <DashboardItem note={note} key={note.id} editNode={editNode}/>
   );
   return (
     <Row gutter={[16, 16]}>
@@ -48,7 +48,7 @@ export default function Dashboard() {
     }
 
     return notesInRows.map((rowNotes) =>
-      <DashboardRow notes={rowNotes} editNode={editNode}/>
+      <DashboardRow notes={rowNotes} key={rowNotes[0].id} editNode={editNode}/>
     );
   }
 

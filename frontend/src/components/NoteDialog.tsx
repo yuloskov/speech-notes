@@ -61,7 +61,7 @@ export default function NoteDialog({id, close, show, update}: NoteDialogPropsT) 
       visible={show}
       onOk={submit}
       onCancel={cancel}
-      footer={[
+      footer={
         <Row>
           <Col flex={0}>
             <Button key='voice' onClick={recordVoice} shape='circle'>
@@ -77,7 +77,7 @@ export default function NoteDialog({id, close, show, update}: NoteDialogPropsT) 
             </Button>
           </Col>
         </Row>
-      ]}
+      }
     >
       <TextArea
         key='title'

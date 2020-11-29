@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
 import ApiClient, { setToken } from '../ApiClient';
-import history from '../browerHistory';
+import history from '../browserHistory';
 import {UserT} from '../types';
 
 
