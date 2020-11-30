@@ -12,7 +12,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
   const [text, setText] = useState('');
   const [title, setTitle] = useState('');
   const [created, setCreated] = useState<Date>(new Date(0));
-  const [audio, setAudio] = useState<Blob | null>(null);
+  const [audio, setAudio] = useState<Blob | string | null>(null);
   const [time, setTime] = useState(0);
   const [recording, setRecording] = useState(false);
   const operation: NoteOpE = id > -1 ? NoteOpE.EDIT : NoteOpE.ADD;
@@ -23,6 +23,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
     ApiClient.get(`notes/${id}/`).then(({data}: {data: NoteT}) => {
       setText(data.text);
       setTitle(data.title);
+      setAudio(data.audio_file);
       setCreated(new Date(data.datetime));
     });
   }, [id]);
@@ -34,11 +35,27 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
     }
 
     if (id === -1) {
-      await ApiClient.post('notes/', {title,text});
+      const data = new FormData();
+      data.append('title', title);
+      data.append('text', text);
+      if (audio !== null) {
+        data.append('audio_file', audio as Blob, 'audio.wav');
+      }
+      await ApiClient.post('notes/', data, {
+        headers: {
+          'content-type': 'multipart/form-data'
+        }
+      });
     } else {
-      await ApiClient.patch(`notes/${id}/`, {title, text});
+      await ApiClient.patch(`notes/${id}/`, { title, text });
     }
 
+    update();
+    close();
+  }
+
+  async function deleteNote() {
+    await ApiClient.delete(`notes/${id}/`);
     update();
     close();
   }
@@ -48,7 +65,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
 
     const recorder = makeRecorder();
     const intervalId = setInterval(() => setTime((time) => time + 1), 1000)
-    recorder.start((file: Blob) => setAudio(file))
+    recorder.start((file: Blob) => setAudio(file));
 
     return () => {
       clearInterval(intervalId)
@@ -65,7 +82,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
       footer={
         <Row>
           <Col flex={0}>
-            {id === -1 && (<>
+            {id === -1 ? (<>
               <Button onClick={() => setRecording(!recording)} shape='circle' style={{ marginRight: 8 }}>
                 <AudioOutlined/>
               </Button>
@@ -75,7 +92,11 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
                   {recording ? "recording... " : "done "}
                   {(time / 60).toFixed(0).padStart(2, '0')}:{(time % 60).toString().padStart(2, '0')}
               </Tag>}
-            </>)}
+            </>) : (
+              <Button onClick={deleteNote} type="primary" danger style={{ marginRight: 8 }}>
+                Delete
+              </Button>
+            )}
           </Col>
           <Col flex={24}>
             <Button key='back' onClick={close}>
@@ -104,6 +125,15 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
         value={text}
         placeholder='Enter your note here'
       />
+      {id > -1 && audio && <figure>
+        <figcaption>Listen your note:</figcaption>
+          <audio
+            controls
+            src={audio as string}>
+            Your browser does not support the
+            <code>audio</code> element.
+          </audio>
+      </figure>}
     </Modal>
   );
 }

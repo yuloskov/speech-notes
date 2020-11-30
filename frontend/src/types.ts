@@ -3,7 +3,7 @@ export interface NoteT {
 	datetime: string,
 	title: string,
 	text: string,
-	// TODO add audio fields
+	audio_file: string,
 }
 
 export interface NotePropsT {
