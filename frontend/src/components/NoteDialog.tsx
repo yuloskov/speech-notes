@@ -18,7 +18,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
   const operation: NoteOpE = id > -1 ? NoteOpE.EDIT : NoteOpE.ADD;
 
   useEffect(() => {
-    if (id === -1) return;
+    if (operation === NoteOpE.ADD) return;
 
     ApiClient.get(`notes/${id}/`).then(({data}: {data: NoteT}) => {
       setText(data.text);
@@ -26,7 +26,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
       setAudio(data.audio_file);
       setCreated(new Date(data.datetime));
     });
-  }, [id]);
+  }, []);
 
   async function submit() {
     if (title === '' && text === '') {
@@ -34,7 +34,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
       return;
     }
 
-    if (id === -1) {
+    if (operation === NoteOpE.ADD) {
       const data = new FormData();
       data.append('title', title);
       data.append('text', text);
@@ -82,7 +82,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
       footer={
         <Row>
           <Col flex={0}>
-            {id === -1 ? (<>
+            {operation === NoteOpE.ADD ? (<>
               <Button onClick={() => setRecording(!recording)} shape='circle' style={{ marginRight: 8 }}>
                 <AudioOutlined/>
               </Button>
@@ -125,7 +125,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
         value={text}
         placeholder='Enter your note here'
       />
-      {id > -1 && audio && <figure>
+      {operation === NoteOpE.EDIT && audio && <figure>
         <figcaption>Listen your note:</figcaption>
           <audio
             controls

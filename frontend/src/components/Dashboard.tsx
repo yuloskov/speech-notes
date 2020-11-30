@@ -28,7 +28,7 @@ export default function Dashboard() {
     visible: false,
     id: -1
   });
-  const [notes, setNotes] = useState([] as NoteT[]);
+  const [notes, setNotes] = useState<NoteT[]>([]);
 
   async function updateNotes() {
     const resp = await ApiClient.get('notes/');
@@ -38,10 +38,11 @@ export default function Dashboard() {
   function getRows() {
     const notesInRows: NoteT[][] = [];
 
+    const rowSize = 4;
     let index = 0;
     while (index < notes.length) {
-      notesInRows.push(notes.slice(index, index + 4));
-      index += 4;
+      notesInRows.push(notes.slice(index, index + rowSize));
+      index += rowSize;
     }
 
     const editNote = (id: number) => setCurNote({ visible: true, id });

@@ -14,7 +14,7 @@ import {hasToken, logout} from './ApiClient';
 import history from './browserHistory';
 
 
-function App() {
+export default function App() {
   const [authed, setAuthed] = useState(hasToken());
 
   return (
@@ -34,25 +34,22 @@ function App() {
         </Layout.Header>
         <Layout.Content style={{padding: '50px'}}>
           <Switch>
-
+            {/* Authorization */}
             <Route path='/login'>
               <LoginForm setAuthed={setAuthed}/>
             </Route>
             <Route path='/register'>
               <RegisterForm setAuthed={setAuthed}/>
             </Route>
-
+            {/* Application */}
             <PrivateRoute path='/notes' authed={authed}>
               <Dashboard/>
             </PrivateRoute>
-
+            {/* Default fallback */}
             <Redirect to="/notes"/>
-
           </Switch>
         </Layout.Content>
       </Layout>
     </Router>
   );
 }
-
-export default App;
