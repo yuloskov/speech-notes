@@ -1,7 +1,7 @@
-import {Button, Col, Modal, Row} from 'antd';
+import { Button, Col, Modal, Row, Tag } from 'antd'
 import {Input} from 'antd';
 import React, { useEffect, useState } from 'react'
-import {AudioOutlined} from '@ant-design/icons';
+import { AudioOutlined, CheckCircleOutlined, SyncOutlined } from '@ant-design/icons'
 import ApiClient from '../ApiClient';
 import makeRecorder from '../AudioProcessor';
 import {NoteDialogPropsT} from '../types';
@@ -14,12 +14,10 @@ const addOp = 'Add Note';
 export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
   const [text, setText] = useState('');
   const [title, setTitle] = useState('');
-  const operation = id > -1 ? editOp : addOp;
-  const [recordInfo, setRecordInfo] = useState<{ time: number, audio: Blob | null }>({
-    time: 0,
-    audio: null
-  });
+  const [audio, setAudio] = useState<Blob | null>(null);
+  const [time, setTime] = useState(0);
   const [recording, setRecording] = useState(false);
+  const operation = id > -1 ? editOp : addOp;
 
   useEffect(() => {
     if (id === -1) return;
@@ -50,13 +48,8 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
     if (!recording) return;
 
     const recorder = makeRecorder();
-    const intervalId = setInterval(() => {
-      setRecordInfo(({ time, ...rest }) => ({ time: time + 1, ...rest }))
-    }, 1000)
-    recorder.start((file: Blob) => setRecordInfo({
-      time: 0,
-      audio: file
-    }))
+    const intervalId = setInterval(() => setTime((time) => time + 1), 1000)
+    recorder.start((file: Blob) => setAudio(file))
 
     return () => {
       clearInterval(intervalId)
@@ -73,10 +66,17 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
       footer={
         <Row>
           <Col flex={0}>
-            {recordInfo.time}
-            {id === -1 && <Button key='voice' onClick={() => setRecording(!recording)} shape='circle'>
-              <AudioOutlined/>
-            </Button>}
+            {id === -1 && (<>
+              <Button onClick={() => setRecording(!recording)} shape='circle' style={{ marginRight: 8 }}>
+                <AudioOutlined/>
+              </Button>
+              {(recording || audio) && <Tag
+                icon={recording ? <SyncOutlined spin /> : <CheckCircleOutlined />}
+                color={recording ? "processing" : "success"}>
+                  {recording ? "recording... " : "done "}
+                  {(time / 60).toFixed(0).padStart(2, '0')}:{(time % 60).toString().padStart(2, '0')}
+              </Tag>}
+            </>)}
           </Col>
           <Col flex={24}>
             <Button key='back' onClick={close}>
