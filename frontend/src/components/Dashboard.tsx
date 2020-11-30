@@ -45,7 +45,7 @@ export default function Dashboard() {
     }
 
     const editNote = (id: number) => setCurNote({ visible: true, id });
-    return notesInRows.map((rowNotes) =>
+    return notesInRows.map(rowNotes =>
       <DashboardRow notes={rowNotes} key={rowNotes[0].id} editNode={editNote}/>
     );
   }

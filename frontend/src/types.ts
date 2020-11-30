@@ -21,3 +21,8 @@ export interface NoteDialogPropsT {
 	update: () => Promise<void>,
 	id: number,
 }
+
+export enum NoteOpE {
+	ADD = 'Add Note',
+	EDIT = 'Edit Note',
+}

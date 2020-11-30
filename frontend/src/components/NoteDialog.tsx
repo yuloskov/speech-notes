@@ -4,29 +4,28 @@ import React, { useEffect, useState } from 'react'
 import { AudioOutlined, CheckCircleOutlined, SyncOutlined } from '@ant-design/icons'
 import ApiClient from '../ApiClient';
 import makeRecorder from '../AudioProcessor';
-import {NoteDialogPropsT} from '../types';
+import { NoteDialogPropsT, NoteT, NoteOpE } from '../types';
 
 const {TextArea} = Input;
-const editOp = 'Edit Note';
-const addOp = 'Add Note';
-
 
 export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
   const [text, setText] = useState('');
   const [title, setTitle] = useState('');
+  const [created, setCreated] = useState<Date>(new Date(0));
   const [audio, setAudio] = useState<Blob | null>(null);
   const [time, setTime] = useState(0);
   const [recording, setRecording] = useState(false);
-  const operation = id > -1 ? editOp : addOp;
+  const operation: NoteOpE = id > -1 ? NoteOpE.EDIT : NoteOpE.ADD;
 
   useEffect(() => {
     if (id === -1) return;
 
-    ApiClient.get(`notes/${id}/`).then(resp => {
-      setText(resp.data.text);
-      setTitle(resp.data.title);
+    ApiClient.get(`notes/${id}/`).then(({data}: {data: NoteT}) => {
+      setText(data.text);
+      setTitle(data.title);
+      setCreated(new Date(data.datetime));
     });
-  }, []);
+  }, [id]);
 
   async function submit() {
     if (title === '' && text === '') {
@@ -89,6 +88,7 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
         </Row>
       }
     >
+      {operation === NoteOpE.EDIT && <h2>{created.toDateString()}</h2>}
       <TextArea
         key='title'
         rows={1}

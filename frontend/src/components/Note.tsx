@@ -1,16 +1,17 @@
 import React from 'react';
-import {Card} from 'antd';
-import {NotePropsT} from '../types';
+import { Card } from 'antd';
+import { NotePropsT } from '../types';
 
 export default function Note({note, onClick}: NotePropsT) {
   return (
-    <div onClick={() => onClick(note.id)}>
-      <Card
-        hoverable
-        title={note.title}
-      >
+    <Card
+      onClick={() => onClick(note.id)}
+      hoverable
+      title={note.title}
+    >
+      <p style={{overflowWrap: 'break-word'}}>
         {note.text}
-      </Card>
-    </div>
+      </p>
+    </Card>
   );
 }
