@@ -1,6 +1,8 @@
 import urllib.request
 from celery import Celery
 import speech_recognition as sr
+import os
+import requests
 
 
 app = Celery('tasks', broker='amqp://localhost')
@@ -21,6 +23,12 @@ def proceed_audio(filename, callback_url):
         r.adjust_for_ambient_noise(source, duration=0.5)
         audio = r.record(source)
 
-    ans = r.recognize_sphinx(audio)
+    text = r.recognize_sphinx(audio)
 
-    return ans
+    os.remove(filename)
+
+    url = f'{PROTOCOL}://{SERVER_ADDRESS}:{SERVER_PORT}/callback'
+    pload = {'callback_url': callback_url, 'filename': filename, 'text': text}
+    requests.post(url, json=pload)
+
+    return text

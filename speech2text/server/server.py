@@ -3,7 +3,7 @@ import secrets
 from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_restful import Resource, Api
-from worker.celery import app as celery_app
+import requests
 
 from celery import Celery
 celery = Celery('tasks')
@@ -55,6 +55,18 @@ class FileServe(Resource):
         return send_from_directory(flask_app.config['STORAGE_FOLDER'], path)
 
 
+class Callback(Resource):
+    def post(self):
+        content = request.json
+
+        os.remove(flask_app.config['STORAGE_FOLDER'] + "/" + content['filename'])
+
+        pload = {'status': 'ok', 'text': content['text']}
+        requests.post(content['callback_url'], json=pload)
+
+        return jsonify({'status': 'ok'})
+
+
 class Status(Resource):
     def get(self):
         return jsonify({"status": "ok"})
@@ -63,6 +75,7 @@ class Status(Resource):
 api.add_resource(FileReceive, '/')
 api.add_resource(FileServe, '/<path>')
 api.add_resource(Status, '/status')
+api.add_resource(Callback, '/callback')
 
 
 if __name__ == '__main__':
