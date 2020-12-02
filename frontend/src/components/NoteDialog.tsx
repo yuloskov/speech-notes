@@ -65,11 +65,11 @@ export default function NoteDialog({id, close, update}: NoteDialogPropsT) {
 
     const recorder = makeRecorder();
     const intervalId = setInterval(() => setTime((time) => time + 1), 1000)
-    recorder.start((file: Blob) => setAudio(file));
+    recorder.start();
 
     return () => {
       clearInterval(intervalId)
-      recorder.stop()
+      recorder.stop((file: Blob) => setAudio(file))
     };
   }, [recording]);
 

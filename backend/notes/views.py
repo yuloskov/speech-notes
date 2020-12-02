@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from .permissions import MyPermission
 from rest_framework.response import Response
 
 from .models import Note
@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class NoteViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [MyPermission]
     serializer_class = NoteSerializer
 
     def get_queryset(self):
         user = self.request.user
-        notes = Note.objects.filter(author=user)
+        notes = Note.objects.filter(author=user).order_by('datetime')
         return notes
 
     def perform_create(self, serializer):
@@ -34,7 +34,8 @@ class NoteViewSet(viewsets.ModelViewSet):
             self._initiate_audio_file_processing(note)
 
     def _initiate_audio_file_processing(self, note):
-        callback_url = self.reverse_action(self.process_audio_callback.url_name, [note.pk])
+        callback_url = f'http://web:8000/notes/' \
+                       f'{note.pk}/process_audio_callback/'
 
         if settings.STT_SERVICE_URL is None:
             note.audio_processing_status = Note.STATUS_ERROR
@@ -45,7 +46,10 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         response = requests.post(
             settings.STT_SERVICE_URL,
-            data={'callback_url': callback_url},
+            data={
+                'callback_url': callback_url,
+                'auth_token': settings.STT_SERVICE_TOKEN,
+            },
             files={'audio_file': note.audio_file}
         )
 
@@ -56,12 +60,12 @@ class NoteViewSet(viewsets.ModelViewSet):
 
         note.save(update_fields=['audio_processing_status'])
 
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=['post'])
     def process_audio_callback(self, request, pk=None):
-        note = self.get_object()
+        note = Note.objects.get(pk=pk)
 
-        text = request.data.get("text")
-        success = request.data.get("success")
+        text = request.data.get('text')
+        success = request.data.get('success')
 
         note.text = text if success is True else None
         note.audio_processing_status = Note.STATUS_OK if success is True else Note.STATUS_ERROR

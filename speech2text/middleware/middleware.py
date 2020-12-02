@@ -25,6 +25,7 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 def update_filename(filename):
     name, *extensions = filename.split('.')
     new_name = secrets.token_hex(64)
@@ -46,9 +47,14 @@ class FileReceive(Resource):
             upd_filename = update_filename(filename)
             file.save(os.path.join(flask_app.config['STORAGE_FOLDER'], upd_filename))
 
-            celery_app.send_task('proceed_audio',
-                                 kwargs={'filename': upd_filename,
-                                         'callback_url': request.form['callback_url']})
+            celery_app.send_task(
+                'process_audio',
+                 kwargs={
+                     'filename': upd_filename,
+                     'callback_url': request.form['callback_url'],
+                     'auth_token': request.form['auth_token'],
+                 },
+            )
 
             return jsonify({"status": "ok"})
 
@@ -66,7 +72,11 @@ class Callback(Resource):
 
         os.remove(flask_app.config['STORAGE_FOLDER'] + "/" + content['filename'])
 
-        pload = {'success': True, 'text': content['text']}
+        pload = {
+            'success': True,
+            'text': content['text'],
+            'auth_token': content['auth_token'],
+        }
         requests.post(content['callback_url'], json=pload)
 
         return jsonify({'status': 'ok'})

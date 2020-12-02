@@ -146,3 +146,4 @@ docker-compose.yaml
 
 .idea/
 **/node_modules/
+backend/uploaded-audio-files

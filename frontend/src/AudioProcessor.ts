@@ -1,25 +1,22 @@
 // @ts-nocheck
+import Recorder from 'recorder-js';
 export default function AudioProcessor() {
-  const chunks: Blob[] = [];
-  let mediaRecorder: MediaRecorder;
+  let recorder: Recorder;
+  const audioContext =  new (window.AudioContext || window.webkitAudioContext)();
   return {
-    start: (onFinish: (file: Blob) => void) => {
+    start: () => {
       navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        mediaRecorder = new MediaRecorder(stream);
-
-        mediaRecorder.addEventListener("dataavailable", event => {
-          chunks.push(event.data);
-          if (mediaRecorder.state === 'inactive') {
-            // convert stream data chunks to a 'webm' audio format as a blob
-            const audioBlob = new Blob(chunks, { type: 'audio/x-wav' });
-            onFinish(audioBlob);
-          }
-        })
-        mediaRecorder.start(500);
+        recorder = new Recorder(audioContext, {
+          onAnalysed: data => console.log(data),
+        });
+        recorder.init(stream);
+        recorder.start();
       })
     },
-    stop: () => {
-      mediaRecorder.stop();
+    stop: (onFinish: (file: Blob) => void) => {
+        recorder.stop().then(({blob, buffer}) => {
+        onFinish(blob);
+      });
     }
   }
 }

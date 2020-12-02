@@ -15,8 +15,8 @@ app = Celery('tasks', broker=BROKER_URL)
 app.autodiscover_tasks()
 
 
-@app.task(name='proceed_audio')
-def proceed_audio(filename, callback_url):
+@app.task(name='process_audio')
+def process_audio(filename, callback_url, auth_token):
     url = f'{PROTOCOL}://{SERVER_ADDRESS}:{SERVER_PORT}/{filename}'
     urllib.request.urlretrieve(url, filename)
 
@@ -30,7 +30,12 @@ def proceed_audio(filename, callback_url):
     os.remove(filename)
 
     url = f'{PROTOCOL}://{SERVER_ADDRESS}:{SERVER_PORT}/callback'
-    pload = {'callback_url': callback_url, 'filename': filename, 'text': text}
+    pload = {
+        'callback_url': callback_url,
+        'filename': filename,
+        'text': text,
+        'auth_token': auth_token,
+    }
     requests.post(url, json=pload)
 
     return text

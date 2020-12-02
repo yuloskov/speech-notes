@@ -139,3 +139,4 @@ STATIC_URL = '/static/'
 AUDIO_FILE_UPLOAD_DIR = 'uploaded-audio-files/'
 
 STT_SERVICE_URL = os.getenv('STT_SERVICE_URL')
+STT_SERVICE_TOKEN = os.getenv('STT_SERVICE_TOKEN')
