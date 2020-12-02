@@ -4,18 +4,20 @@ from flask import Flask, jsonify, request, send_from_directory
 from werkzeug.utils import secure_filename
 from flask_restful import Resource, Api
 import requests
-
 from celery import Celery
-celery = Celery('tasks')
-celery_app = Celery(broker='amqp://localhost')
+
+
+BROKER_URL = os.environ['BROKER_URL'] if 'BROKER_URL' in os.environ else 'amqp://localhost'
+STORAGE_FOLDER = os.environ['STORAGE_FOLDER'] if 'STORAGE_FOLDER' in os.environ else "storage"
+ALLOWED_EXTENSIONS = {'flac', 'wav'}
+
+
+celery_app = Celery(broker=BROKER_URL)
+
 
 flask_app = Flask(__name__, static_url_path='')
-api = Api(flask_app)
-
-STORAGE_FOLDER = "storage"
 flask_app.config['STORAGE_FOLDER'] = STORAGE_FOLDER
-
-ALLOWED_EXTENSIONS = {'flac', 'wav'}
+api = Api(flask_app)
 
 
 def allowed_file(filename):
@@ -42,9 +44,11 @@ class FileReceive(Resource):
             filename = secure_filename(file.filename)
             upd_filename = update_filename(filename)
             file.save(os.path.join(flask_app.config['STORAGE_FOLDER'], upd_filename))
+
             celery_app.send_task('proceed_audio',
                                  kwargs={'filename': upd_filename,
                                          'callback_url': request.form['callback_url']})
+
             return jsonify({"status": "ok"})
 
         return jsonify({"status": "error", "error_msg": "Unsupported file extension"})
@@ -79,4 +83,4 @@ api.add_resource(Callback, '/callback')
 
 
 if __name__ == '__main__':
-    flask_app.run(debug=True)
+    flask_app.run()
