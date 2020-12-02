@@ -66,7 +66,7 @@ class Callback(Resource):
 
         os.remove(flask_app.config['STORAGE_FOLDER'] + "/" + content['filename'])
 
-        pload = {'status': 'ok', 'text': content['text']}
+        pload = {'success': True, 'text': content['text']}
         requests.post(content['callback_url'], json=pload)
 
         return jsonify({'status': 'ok'})

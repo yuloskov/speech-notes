@@ -1,3 +1,4 @@
+// @ts-nocheck
 export default function AudioProcessor() {
   const chunks: Blob[] = [];
   let mediaRecorder: MediaRecorder;

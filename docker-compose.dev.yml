@@ -6,6 +6,7 @@ x-django-env: &django-env
   DJANGO_DATABASE_PASSWORD: postgres
   DJANGO_DATABASE_HOST: db
   DJANGO_DATABASE_PORT: 5432
+  STT_SERVICE_URL: 'http://middleware:5000'
 
 x-db-env: &db-env
   POSTGRES_DB: postgres
