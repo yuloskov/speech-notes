@@ -6,7 +6,7 @@ import requests
 
 
 SERVER_ADDRESS = os.environ['SERVER_ADDRESS'] if 'SERVER_ADDRESS' in os.environ else 'localhost'
-SERVER_PORT = os.environ['SERVER_ADDRESS'] if 'SERVER_ADDRESS' in os.environ else '5000'
+SERVER_PORT = os.environ['SERVER_PORT'] if 'SERVER_PORT' in os.environ else '5000'
 PROTOCOL = os.environ['PROTOCOL'] if 'PROTOCOL' in os.environ else 'http'
 BROKER_URL = os.environ['BROKER_URL'] if 'BROKER_URL' in os.environ else 'amqp://localhost'
 

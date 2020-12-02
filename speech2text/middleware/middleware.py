@@ -8,6 +8,7 @@ from celery import Celery
 
 
 BROKER_URL = os.environ['BROKER_URL'] if 'BROKER_URL' in os.environ else 'amqp://localhost'
+MIDDLEWARE_PORT = int(os.environ['MIDDLEWARE_PORT']) if 'MIDDLEWARE_PORT' in os.environ else 5000
 STORAGE_FOLDER = os.environ['STORAGE_FOLDER'] if 'STORAGE_FOLDER' in os.environ else "storage"
 ALLOWED_EXTENSIONS = {'flac', 'wav'}
 
@@ -83,4 +84,4 @@ api.add_resource(Callback, '/callback')
 
 
 if __name__ == '__main__':
-    flask_app.run()
+    flask_app.run(host='0.0.0.0', port=MIDDLEWARE_PORT)
