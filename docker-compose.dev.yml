@@ -42,8 +42,6 @@ services:
     environment: *db-env
     volumes:
       - "postgres-data:/var/lib/postgresql/data"
-    ports:
-      - 5432:5432
 
   web:
     build: backend
@@ -57,14 +55,10 @@ services:
 
   rabbitmq:
     image: "rabbitmq:latest"
-    ports:
-      - 5672:5672
 
   middleware:
     build: ./speech2text/middleware
     environment: *middleware-env
-    ports:
-      - 5000:5000
     depends_on:
       - rabbitmq
 
