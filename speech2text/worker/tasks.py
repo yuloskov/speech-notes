@@ -25,7 +25,10 @@ def process_audio(filename, callback_url, auth_token):
     with audio_file as source:
         r.adjust_for_ambient_noise(source, duration=0.5)
         audio = r.record(source)
-    text = r.recognize_sphinx(audio)
+
+    text = r.recognize_google(audio) if 'RECOGNIZE_BACKEND' in os.environ \
+        and os.environ['RECOGNIZE_BACKEND'] == 'GOOGLE' else r.recognize_sphinx(audio)
+
 
     os.remove(filename)
 
